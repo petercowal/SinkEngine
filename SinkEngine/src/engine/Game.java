@@ -5,15 +5,22 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.MouseInfo;
+import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
-public abstract class Game{
+public abstract class Game implements MouseListener, KeyListener{
 	private int width, height;
 	private double scale;
 	private int fps;
@@ -23,9 +30,20 @@ public abstract class Game{
 	private DisplayMode old;
 	private JFrame frame;
 	private JPanel panel;
+	private int mouseX, mouseY;
 	boolean fullScreen;
+	
+	private boolean[] keys;
+	private boolean[] mouseButtons;
+	
 	public Game(){
 		this(320, 180);
+	}
+	public int getMouseX(){
+		return mouseX;
+	}
+	public int getMouseY(){
+		return mouseY;
 	}
 	public int getTime(){
 		return time;
@@ -54,8 +72,10 @@ public abstract class Game{
         frame.pack();
 	}
 	public Game(int width, int height){
-		
 		this.scale = 2;
+		
+		keys = new boolean[128];
+		mouseButtons = new boolean[4];
 		panel = new JPanel();
 		panel.setIgnoreRepaint(true);
 		//panel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
@@ -74,6 +94,8 @@ public abstract class Game{
 		frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setContentPane(panel);
+		frame.addMouseListener(this);
+		frame.addKeyListener(this);
 	}
 	public void setTargetFPS(int fps){
 		this.targetFPS = fps;
@@ -119,6 +141,10 @@ public abstract class Game{
 		int frameCounter = 0;
 		time = 0;
         while(true){
+        	Point mouse = MouseInfo.getPointerInfo().getLocation();
+        	SwingUtilities.convertPointFromScreen(mouse, panel);
+        	mouseX = (int)(mouse.x/scale);
+        	mouseY = (int)(mouse.y/scale);
         	long startTime = System.nanoTime();
         	update();
         	((Graphics2D)screen.getGraphics()).setTransform(new AffineTransform());
@@ -157,5 +183,53 @@ public abstract class Game{
 		AffineTransform at = AffineTransform.getScaleInstance(scale,scale);
 		g2d.drawImage(screen, at, panel);
 		//g2d.drawImage(screen, 0, 0, frame.getWidth(), frame.getHeight(), null);
+	}
+	public boolean mouseDown(int button){
+		return mouseButtons[button];
+	}
+	public boolean keyDown(int button){
+		return keys[button];
+	}
+	@Override
+	public void mouseClicked(MouseEvent e){
+		
+	}
+	@Override
+	public void mousePressed(MouseEvent e){
+		if(e.getButton() < mouseButtons.length){
+			mouseButtons[e.getButton()] = true;
+		}
+	}
+	@Override
+	public void mouseReleased(MouseEvent e){
+		if(e.getButton() < mouseButtons.length){
+			mouseButtons[e.getButton()] = false;
+		}
+	}
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		
+		
+	}
+	@Override
+	public void mouseExited(MouseEvent e) {
+		
+		
+	}
+	@Override
+	public void keyTyped(KeyEvent e){
+		
+	}
+	@Override
+	public void keyPressed(KeyEvent e){
+		if(e.getKeyCode() < keys.length){
+			keys[e.getKeyCode()] = true;
+		}
+	}
+	@Override
+	public void keyReleased(KeyEvent e){
+		if(e.getKeyCode() < keys.length){
+			keys[e.getKeyCode()] = false;
+		}
 	}
 }
