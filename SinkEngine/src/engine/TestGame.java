@@ -2,11 +2,18 @@ package engine;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 public class TestGame extends Game{
 	public static void main(String[] args){
-		new TestGame().start();
+		TestGame t = new TestGame();
+		t.setSize(320, 180);
+		t.setFullScreen();
+		t.setTargetFPS(60);
+		t.start();
+		
 	}
 	@Override
 	public void update() {
@@ -17,10 +24,15 @@ public class TestGame extends Game{
 	@Override
 	public void render(BufferedImage target) {
 		// TODO Auto-generated method stub
-		Graphics g = target.getGraphics();
-		g.clearRect(0, 0, getWidth(), getHeight());
-		g.setColor(Color.WHITE);
-		g.fillRect((int)(Math.random()*100), (int)(Math.random()*100), 100, 100);
+		Graphics2D g = (Graphics2D)target.getGraphics();
+		g.clearRect(0, 0, this.getWidth(), this.getHeight());
+		g.setColor(new Color(255,255,255,120));
+		g.drawRect(0, 0, this.getWidth()-1, this.getHeight()-1);
+		for(int i = 0; i < 1; i++){
+			g.fillRect(-100+this.getTime()%500, 10, 100, 100);
+		}
+		g.drawString("FPS: "+this.getFPS(), 20, 20);
+		//setFullScreen();
 	}
 
 }
